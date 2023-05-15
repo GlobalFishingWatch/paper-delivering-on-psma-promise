@@ -1,0 +1,52 @@
+territory_iso3,sovereign_iso3,territory_name,sovereign_name
+HMD,AUS,Heard Island and McDonald Islands,Australia
+NFK,AUS,Norfolk Island,Australia
+CXR,AUS,Christmas Island,Australia
+CCK,AUS,Cocos (Keeling) Islands,Australia
+FRO,DNK,Faroe Islands,Denmark
+GRL,DNK,Greenland,Denmark
+MTQ,FRA,Martinique,France
+ATF,FRA,French Southern Territories,France
+PYF,FRA,French Polynesia,France
+REU,FRA,Réunion,France
+NCL,FRA,New Caledonia,France
+CPT,FRA,Clipperton Island,France
+GLP,FRA,Guadeloupe,France
+BLM,FRA,Saint Barthélemy,France
+MAF,FRA,Saint Martin (French part),France
+SPM,FRA,Saint Pierre and Miquelon,France
+WLF,FRA,Wallis and Futuna,France
+GUF,FRA,French Guiana,France
+MYT,FRA,Mayotte,France
+ASC,GBR,Ascension Island,United Kingdom
+AIA,GBR,Anguilla,United Kingdom
+TCA,GBR,Turks and Caicos Islands,United Kingdom
+PCN,GBR,Pitcairn,United Kingdom
+SHN,GBR,"Saint Helena, Ascension and Tristan da Cunha",United Kingdom
+TAA,GBR,Tristan da Cunha,United Kingdom
+BMU,GBR,Bermuda,United Kingdom
+VGB,GBR,"Virgin Islands, British",United Kingdom
+CYM,GBR,Cayman Islands,United Kingdom
+MSR,GBR,Montserrat,United Kingdom
+GGY,GBR,Guernsey,United Kingdom
+JEY,GBR,Jersey,United Kingdom
+FLK,GBR,Falkland Island,United Kingdom
+GIB,GBR,Gibraltar,United Kingdom
+CUW,NLD,Curaçao,Netherlands
+BES,NLD,"Bonaire, Sint Eustatius and Saba",Netherlands
+ABW,NLD,Aruba,Netherlands
+SXM,NLD,Sint Maarten (Dutch part),Netherlands
+SJM,NOR,Svalbard and Jan Mayen,Norway
+BVT,NOR,Bouvet Island,Norway
+TKL,NZL,Tokelau,New Zealand
+COK,NZL,Cook Islands,New Zealand
+NIU,NZL,Niue,New Zealand
+ASM,USA,American Samoa,United States
+VIR,USA,"Virgin Islands, U.S.",United States
+GUM,USA,Guam,United States
+MNP,USA,Northern Mariana Islands,United States
+UMI,USA,United States Minor Outlying Islands,United States
+PRI,USA,Puerto Rico,United States
+MAC,CHN,Macao,China
+HKG,CHN,Hong Kong,China
+ALA,FIN,land Islands,Finland
