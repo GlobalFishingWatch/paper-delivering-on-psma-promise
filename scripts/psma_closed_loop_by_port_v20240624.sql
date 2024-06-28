@@ -1,23 +1,11 @@
 ----------------------------
 -- PSMA closed loop par port
 ----------------------------
-CREATE TEMPORARY FUNCTION start_date() AS (TIMESTAMP "2012-01-01");
-CREATE TEMPORARY FUNCTION end_date() AS (TIMESTAMP "2021-12-31");
+CREATE TEMPORARY FUNCTION start_date() AS (TIMESTAMP "2015-01-01");
+CREATE TEMPORARY FUNCTION end_date() AS (TIMESTAMP "2022-01-01");
 CREATE TEMPORARY FUNCTION psma_flag(flag STRING) AS ((
   SELECT
-    flag IN (
-      "EU",
-      "ALB", "AUS", "BHS", "BGD", "BRB", "BEN", "CPV", "KHM", "CAN", "CHL", "CRI", "CUB", "CIV", "DNK", "GRL", "FRO",
-      "DJI", "DMA", "ECU",
-      'AUT', 'BEL', 'BGR', 'HRV', 'CYP',
-      'CZE', 'DNK', 'EST', 'FIN', 'FRA',
-      'DEU', 'GRC', 'HUN', 'IRL', 'ITA',
-      'LVA', 'LTU', 'LUX', 'MLT', 'NLD',
-      'POL', 'PRT', 'ROU', 'SVK', 'SVN',
-      'ESP', 'SWE', 'GBR',
-      'FJI', 'FRA', 'GAB', 'GMB', 'GHA', 'GRD', 'GIN', 'GUY', 'ISL', 'IDN', 'JPN', 'KEN', 'LBR', 'LBY', 'MDG', 'MDV', 'MRT', 'MUS', 'MNE', 'MOZ', 'MMR',
-      'NAM', 'NZL', 'NIC', 'NOR', 'OMN', 'PLW', 'PAN', 'PHL', 'KOR', 'RUS', 'KNA', 'VCT', 'STP', 'SEN', 'SYC', 'SLE', 'SOM', 'ZAF', 'LKA', 'SDN',
-      'THA', 'TGO', 'TON', 'TTO', 'TUR', 'GBR', 'USA', 'URY', 'VUT', 'VNM' )
+    flag IN (SELECT iso3 FROM `scratch_jaeyoon.psma_ratifiers_v20240318`)
 ));
 CREATE TEMPORARY FUNCTION group_eu_flags (flag STRING) AS ((
   SELECT
@@ -35,16 +23,27 @@ CREATE TEMPORARY FUNCTION group_eu_flags (flag STRING) AS ((
     END
 ));
 
--- CREATE OR REPLACE TABLE `world-fishing-827.scratch_jaeyoon.psma_closed_loop_by_port` AS
+CREATE OR REPLACE TABLE `world-fishing-827.scratch_jaeyoon.psma_closed_loop_by_port_v20240624` AS
 
 WITH
+  source_vessel_info AS (
+    SELECT *
+    FROM `world-fishing-827.pipe_ais_v3_published.vi_ssvid_v20240501`
+  ),
 
-  target_vessels AS (
-    SELECT ssvid, activity.first_timestamp, activity.last_timestamp, best.best_flag, best.best_vessel_class
-    FROM `gfw_research.vi_ssvid_v20220401`
-    WHERE TIMESTAMP_DIFF (activity.last_timestamp, activity.first_timestamp, SECOND) > 60 * 60 * 24 * 30
-      -- AND (udfs.is_fishing (best.best_vessel_class)
-      --   OR udfs.is_carrier (best.best_vessel_class))
+  source_port_visits AS (
+    SELECT *
+    FROM `world-fishing-827.pipe_ais_v3_published.product_events_port_visit`
+  ),
+
+  source_anchorages AS (
+    SELECT *
+    FROM `world-fishing-827.anchorages.named_anchorages_v20240117`
+  ),
+
+  source_encounters AS (
+    SELECT *
+    FROM `world-fishing-827.pipe_ais_v3_published.product_events_encounter`
   ),
 
   port_visits AS (
@@ -53,36 +52,41 @@ WITH
       JSON_EXTRACT_SCALAR (event_vessels, "$[0].name") AS shipname,
       JSON_EXTRACT_SCALAR (event_info, "$.start_anchorage.flag") AS port_flag,
       JSON_EXTRACT_SCALAR (event_info, "$.intermediate_anchorage.anchorage_id") AS anchorage_id,
-    FROM `pipe_production_v20201001.published_events_port_visits`
+    FROM source_port_visits
     WHERE event_start BETWEEN start_date() AND end_date()
-      AND CAST (JSON_EXTRACT_SCALAR (event_info, "$.confidence") AS INT64) >= 2
+      AND CAST (JSON_EXTRACT_SCALAR (event_info, "$.confidence") AS INT64) >= 3
+      AND TIMESTAMP_DIFF (event_end, event_start, HOUR) > 3
   ),
 
-------------------------------------------------
--- anchorage ids that represent the Panama Canal
-------------------------------------------------
+  ----------------------------------------------------------
+  -- anchorage ids that represent the unlikely landing ports
+  ----------------------------------------------------------
   canal_ids AS (
     SELECT s2id AS anchorage_id, label, sublabel, iso3
-    FROM `anchorages.named_anchorages_v20220511`
+    FROM source_anchorages
     WHERE sublabel = "PANAMA CANAL"
-      OR label = "SUEZ" OR label = "SUEZ CANAL"
+      OR label = "SUEZ"
+      OR label = "SUEZ CANAL"
+      OR label = "SINGAPORE"
+  ),
+
+  target_carriers AS (
+    SELECT *
+    FROM source_vessel_info
+    WHERE best.best_vessel_class IN ('reefer', 'specialized_reefer', 'container_reefer', 'fish_factory')
   ),
 
   target_vessel_port_visits AS (
     SELECT *
     FROM port_visits
-    -- JOIN (
-    --   SELECT ssvid, best_flag
-    --   FROM target_vessels )
-    -- USING (ssvid)
     WHERE anchorage_id NOT IN (SELECT anchorage_id FROM canal_ids)
   ),
 
   encounters AS (
     SELECT DISTINCT
       event_id, event_start, event_end, lat_mean, lon_mean,
-      JSON_EXTRACT_SCALAR (event_info, "$.median_distance_km") AS median_distance_km,
-      JSON_EXTRACT_SCALAR (event_info, "$.median_speed_knots") AS median_speed_knots,
+      CAST (JSON_EXTRACT_SCALAR (event_info, "$.median_distance_km") AS FLOAT64) AS median_distance_km,
+      CAST (JSON_EXTRACT_SCALAR (event_info, "$.median_speed_knots") AS FLOAT64) AS median_speed_knots,
       JSON_EXTRACT_SCALAR (event_vessels, "$[0].ssvid") AS ssvid_1,
       JSON_EXTRACT_SCALAR (event_vessels, "$[0].name") AS name_1,
       JSON_EXTRACT_SCALAR (event_vessels, "$[0].type") AS type_1,
@@ -91,11 +95,14 @@ WITH
       JSON_EXTRACT_SCALAR (event_vessels, "$[1].name") AS name_2,
       JSON_EXTRACT_SCALAR (event_vessels, "$[1].type") AS type_2,
       JSON_EXTRACT_SCALAR (event_vessels, "$[1].flag") AS flag_2
-    FROM `world-fishing-827.pipe_production_v20201001.published_events_encounters`
+    FROM source_encounters
     WHERE event_start BETWEEN start_date() AND end_date()
       AND JSON_EXTRACT_SCALAR (event_info, "$.vessel_classes") IN ("carrier-fishing", "fishing-carrier")
   ),
 
+  -------------------------------------------------
+  -- Pull encounters with regard to carrier vessels
+  -------------------------------------------------
   target_vessel_encounters AS (
     SELECT DISTINCT
       a.event_id,
@@ -106,16 +113,14 @@ WITH
       IF (a.type_1 = "fishing", a.flag_1, a.flag_2) AS fishing_flag,
       IF (a.type_1 = "carrier", a.flag_1, a.flag_2) AS carrier_flag
     FROM encounters AS a
-    -- LEFT JOIN (
-    --   SELECT ssvid, best_flag
-    --   FROM target_vessels ) AS b
-    -- ON (a.ssvid_1 = b.ssvid)
-    -- LEFT JOIN (
-    --   SELECT ssvid, best_flag
-    --   FROM target_vessels ) AS c
-    -- ON (a.ssvid_2 = c.ssvid)
+    WHERE median_distance_km < 0.5
+      AND median_speed_knots < 2
+      AND TIMESTAMP_DIFF (event_end, event_start, HOUR) > 2
   ),
 
+  -----------------------------------------------------------
+  -- Identify the first port visited after a given encounter
+  -----------------------------------------------------------
   target_vessel_first_port AS (
     SELECT DISTINCT * EXCEPT (post_visit_rank, diff)
     FROM (
@@ -144,31 +149,28 @@ WITH
           FROM target_vessel_port_visits ) AS b
         ON (a.carrier_ssvid = b.ssvid)
         -- ON (a.fishing_ssvid = b.ssvid)
+        JOIN (
+          SELECT DISTINCT ssvid
+          FROM target_carriers ) AS c
+        ON (a.carrier_ssvid = c.ssvid)
         WHERE b.event_start > a.event_end ) )
     WHERE post_visit_rank = 1
-  ),
-
-  psma_flag AS (
-    SELECT *, #psma_flag (flag) AS psma
-    FROM encounters
-  ),
-
-  fishing_events AS (
-    SELECT
-      ssvid,
-      timestamp AS event_start,
-      IF (night_loitering > 0 OR nnet_score >0, hours, 0) AS hours
-    FROM `gfw_research.pipe_v20201001_fishing`
-    WHERE timestamp BETWEEN start_date() AND end_date()
   )
 
-SELECT psma_port AS psma, port_flag_eu, closed_loop_cnt, total_cnt, closed_loop_cnt / total_cnt AS ratio_closed_loop
+SELECT psma_port AS psma, port_flag_eu, closed_loop_cnt, total_cnt, closed_loop_cnt / total_cnt AS ratio_closed_loop,
+  grand_total_cnt,
+  total_cnt / grand_total_cnt AS grand_ratio,
+  closed_loop_cnt / closed_loop_total_cnt AS closed_loop_ratio,
+  closed_loop_total_cnt / grand_total_cnt AS closed_ratio
 FROM (
   SELECT psma_port, port_flag_eu,
     COUNTIF (fishing_flag_eu = carrier_flag_eu AND carrier_flag_eu = port_flag_eu) AS closed_loop_cnt,
     COUNT (*) AS total_cnt
   FROM target_vessel_first_port
-  GROUP BY 1,2)
--- WHERE port_flag IN ('TWN', 'CHN', 'RUS', 'KOR', 'USA', 'JPN', 'IDN', 'TUR', 'CHL', 'ESP')
-WHERE closed_loop_cnt / total_cnt > 0.0 AND total_cnt > 10
+  GROUP BY 1,2),
+( SELECT COUNT (*) grand_total_cnt,
+    COUNTIF (fishing_flag_eu = carrier_flag_eu AND carrier_flag_eu = port_flag_eu) AS closed_loop_total_cnt
+  FROM target_vessel_first_port)
+WHERE closed_loop_cnt / total_cnt >= 0.0 AND total_cnt > 100
 ORDER BY psma_port DESC, port_flag_eu, total_cnt
+
