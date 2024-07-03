@@ -54,6 +54,9 @@ plt.ylabel('Total hours by vessels broadcasting AIS per day')
 plt.legend(loc=2)
 plt.grid(True, linewidth=0.5)
 plt.title('AIS hours by vessels flagged to PSMA')
+
+plt.savefig('../outputs/figures/figS1_1.pdf', format='pdf')
+
 plt.show()
 
 # +
@@ -69,6 +72,9 @@ plt.ylabel('Total hours by vessels broadcasting AIS per day')
 plt.legend(loc=2)
 plt.grid(True, linewidth=0.5)
 plt.title('AIS hours by vessels flagged to non-PSMA without China')
+
+plt.savefig('../outputs/figures/figS1_2.pdf', format='pdf')
+
 plt.show()
 
 # +
@@ -84,6 +90,9 @@ plt.ylabel('Total hours by vessels broadcasting AIS per day')
 plt.legend(loc=2)
 plt.grid(True, linewidth=0.5)
 plt.title('AIS hours by vessels flagged to China (non-PSMA)')
+
+plt.savefig('../outputs/figures/figS1_3.pdf', format='pdf')
+
 plt.show()
 # -
 

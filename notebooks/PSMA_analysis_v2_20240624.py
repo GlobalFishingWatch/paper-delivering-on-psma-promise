@@ -106,7 +106,7 @@ ax1.set_title('PSMA')
 ax2.set_title('Non-PSMA')
 
 
-plt.savefig('../figures/fig5.pdf', format='pdf')
+plt.savefig('../outputs/figures/fig5.pdf', format='pdf')
 
 plt.tight_layout()
 plt.show()
@@ -193,7 +193,7 @@ ax.text(0.65, 3.5, '100')
 # ax.scatter(0, 0, s=)
 
 
-plt.savefig('../figures/fig7.pdf', format='pdf')
+plt.savefig('../outputs/figures/fig7.pdf', format='pdf')
 
 plt.show()
 # -
@@ -289,7 +289,7 @@ plt.ylabel("Proportion of transshipment vessel visits in a closed loop" +
            "\nto total transshipment vessel visits by the same flag State", fontsize=10)
 # plt.title("Significance of closed loop connection with regard to total port visits and total carrier fleet size")
 
-plt.savefig('../figures/fig8.pdf', format='pdf')
+plt.savefig('../outputs/figures/fig8.pdf', format='pdf')
 
 # Display the plot (optional)
 plt.show()
@@ -356,7 +356,7 @@ reordered_labels = [labels[2], labels[1], labels[0]]
 axes[0][0].legend(loc=1, handles=reordered_handles, labels=reordered_labels, bbox_to_anchor=(1, 1.4))
 
 
-plt.savefig('../figures/figS5.pdf', format='pdf')
+plt.savefig('../outputs/figures/figS5.pdf', format='pdf')
 
 plt.tight_layout()
 plt.show()
@@ -404,14 +404,14 @@ plt.grid(axis='y', linewidth=0.7, linestyle=':')
 
 plt.tight_layout()
 
-plt.savefig('../figures/figS4.pdf', format='pdf')
+plt.savefig('../outputs/figures/figS4.pdf', format='pdf')
 
 # Display the plot (optional)
 plt.show()
 
 # Optionally close the plot
 plt.close()
-# plt.savefig('initial_submission/figures/figS1.pdf')
+
 # -
 
 # ## Upload PSMA ratification dates
