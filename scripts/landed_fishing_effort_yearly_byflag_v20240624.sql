@@ -3,7 +3,7 @@ CREATE TEMPORARY FUNCTION start_date() AS (TIMESTAMP "2015-01-01");
 CREATE TEMPORARY FUNCTION end_date() AS (TIMESTAMP "2021-11-01");
 CREATE TEMPORARY FUNCTION psma_flag(flag STRING) AS ((
   SELECT
-    flag IN (SELECT iso3 FROM `scratch_jaeyoon.psma_ratifiers_v20240318`)
+    flag IN (SELECT iso3 FROM `scratch_jaeyoon.psma_ratifiers_v20240815`)
 ));
 CREATE TEMPORARY FUNCTION group_eu_flags (flag STRING) AS ((
   SELECT
@@ -27,7 +27,7 @@ CREATE TEMPORARY FUNCTION group_eu_flags (flag STRING) AS ((
 --------------------
 CREATE
 OR REPLACE
-TABLE `world-fishing-827.scratch_jaeyoon.landed_fishing_effort_yearly_byflag_v20240624` AS
+TABLE `world-fishing-827.scratch_jaeyoon.landed_fishing_effort_yearly_byflag_v20240815` AS
 
 WITH
   ----------------
@@ -59,8 +59,8 @@ WITH
   ),
 
   source_ratify_info AS (
-    SELECT *
-    FROM `world-fishing-827.scratch_jaeyoon.psma_ratifiers_v20240318`
+    SELECT *, Entry_into_force_date AS date
+    FROM `world-fishing-827.scratch_jaeyoon.psma_ratifiers_v20240815`
   ),
 
   source_vessel_info AS (

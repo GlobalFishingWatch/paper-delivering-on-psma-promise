@@ -6,7 +6,7 @@ CREATE TEMP FUNCTION start_date () AS (TIMESTAMP "2012-01-01");
 CREATE TEMP FUNCTION end_date () AS (TIMESTAMP "2022-01-01");
 CREATE TEMPORARY FUNCTION psma_flag(flag STRING) AS ((
   SELECT
-    flag IN (SELECT iso3 FROM `scratch_jaeyoon.psma_ratifiers_v20240318`)
+    flag IN (SELECT iso3 FROM `scratch_jaeyoon.psma_ratifiers_v20240815`)
 ));
 
 CREATE TEMPORARY FUNCTION group_eu_flags(flag STRING) AS ((
@@ -418,3 +418,21 @@ QUALIFY COUNT (*) OVER (PARTITION BY port_flag_eu) > 1
   AND LOGICAL_AND (year_total > 10) OVER (PARTITION BY port_flag_eu)
   AND LOGICAL_AND (cnt_vessels > 0) OVER (PARTITION BY port_flag_eu)
 ORDER BY diff DESC, total DESC, port_flag_eu, event_year
+
+
+--## 30% increase 14% decrease
+--#
+--# Ratio change by port flag before and after 2017
+--SELECT is_psma, event_year, SUM (cnt) / SUM (year_total)
+--FROM (
+--SELECT *,
+--  ROUND (SUM ( IF(event_year = 2021, ratio, -1 * ratio) ) OVER (PARTITION BY port_flag_eu), 2) AS diff,
+--  SUM (year_total) OVER (PARTITION BY port_flag_eu) AS total,
+--  psma_flag (port_flag_eu) AS is_psma
+--FROM change_by_flag
+--QUALIFY COUNT (*) OVER (PARTITION BY port_flag_eu) > 1
+--  AND LOGICAL_AND (year_total > 10) OVER (PARTITION BY port_flag_eu)
+--  AND LOGICAL_AND (cnt_vessels > 0) OVER (PARTITION BY port_flag_eu)
+--ORDER BY diff DESC, total DESC, port_flag_eu, event_year )
+--GROUP BY 1,2
+--ORDER BY 1,2
