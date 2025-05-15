@@ -49,7 +49,7 @@ port_visit_label as (
     using (s2id)
 ),
 
-
+'''
 -- add pacific
 port_visit_pacific as (
     select
@@ -62,7 +62,7 @@ port_visit_pacific as (
     )
     using(s2id)
 ),
-
+'''
 
 -- vessel_info: fishing, carrier (no fish factory, well boat), bunker 
 vessel_info as (
