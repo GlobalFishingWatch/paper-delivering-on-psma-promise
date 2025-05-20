@@ -1,7 +1,8 @@
-#
-# 2023-07-28
-# Revised domestication by port flag analysis
-# -- compared domestic port visit ratio before 2017 and after 2017
+#################################################################
+# Flag domestication analysis by port flag
+# comparing domestic port visit ratio before 2017 and after 2017
+#################################################################
+
 CREATE TEMP FUNCTION start_date () AS (TIMESTAMP "2012-01-01");
 CREATE TEMP FUNCTION end_date () AS (TIMESTAMP "2022-01-01");
 CREATE TEMPORARY FUNCTION psma_flag(flag STRING) AS ((
@@ -397,15 +398,6 @@ WITH
     WHERE is_target_flag
     ORDER BY 1,2
   )
-
--- #
--- # Checking port flag level probing
--- SELECT DISTINCT
---   vessel_record_id, ssvid, first_timestamp, last_timestamp, n_shipname, n_callsign, imo,
---   flag_eu, port_flag_eu, multi_visits, total_num_vessels
--- FROM additional_filter
--- WHERE port_flag_eu ='NGA'
--- ORDER BY vessel_record_id, first_timestamp, last_timestamp
 
 #
 # Ratio change by port flag before and after 2017

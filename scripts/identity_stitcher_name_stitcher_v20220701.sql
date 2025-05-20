@@ -1,7 +1,7 @@
-----------------------------------
--- NAME STITCHER DEV. FLAG CHANGES
--- 2022-06-01
-----------------------------------
+##################################################################
+# SQL script to identify identities associated with the same hulls
+# using ship name with the same flag
+##################################################################
 
 CREATE TEMP FUNCTION check_timestamp_overlap (
     arr ARRAY<STRUCT<first_timestamp TIMESTAMP, last_timestamp TIMESTAMP>>) AS ((

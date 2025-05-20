@@ -1,6 +1,6 @@
-----------------------------
--- PSMA closed loop par port
-----------------------------
+######################################
+# PSMA closed loop analysis by port
+######################################
 CREATE TEMPORARY FUNCTION start_date() AS (TIMESTAMP "2015-01-01");
 CREATE TEMPORARY FUNCTION end_date() AS (TIMESTAMP "2022-01-01");
 CREATE TEMPORARY FUNCTION psma_flag(flag STRING) AS ((

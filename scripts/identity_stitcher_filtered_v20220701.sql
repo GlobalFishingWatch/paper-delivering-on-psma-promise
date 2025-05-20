@@ -1,7 +1,6 @@
-# Keywords: Identity stitcher to identify identities associated with the same hulls
----------------------------------
--- IDENTITY STITCHER GAP FILTERED
----------------------------------
+##################################################################
+# SQL script to identify identities associated with the same hulls
+##################################################################
 
 CREATE OR REPLACE TABLE `world-fishing-827.scratch_jaeyoon.flag_changes_identity_stitcher_v20220701` AS
 

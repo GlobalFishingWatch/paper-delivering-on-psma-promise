@@ -1,4 +1,6 @@
-## Keywords: Landed fishing effort in kwh by foreign vs domestic
+###################################################################################
+# Landed fishing effort in kwh by foreign vs domestic
+###################################################################################
 CREATE TEMPORARY FUNCTION start_date() AS (TIMESTAMP "2015-01-01");
 CREATE TEMPORARY FUNCTION end_date() AS (TIMESTAMP "2021-11-01");
 CREATE TEMPORARY FUNCTION psma_flag(flag STRING) AS ((

@@ -30,12 +30,15 @@ from matplotlib import colors, colorbar
 blue = "#204280"
 red = "#d73b68"
 
+# REPLACE IT WITH THE PARQUET FILE UNDER THE SAME NAME IN THE DATA FOLDER
 q = """
 SELECT *, timeline AS year
-FROM `scratch_jaeyoon.landed_fishing_effort_yearly_v20240624`
+FROM `scratch_jaeyoon.landed_fishing_effort_yearly_v20240815`
 WHERE timeline BETWEEN 2015 AND 2021
 """
 psma_yearly = pd.read_gbq(q, project_id='world-fishing-827', dialect='standard')
+
+psma_yearly
 
 # +
 fig = plt.figure(figsize=(13, 7))#, dpi=200, facecolor='#f7f7f7')
@@ -105,9 +108,6 @@ ax2.set_ylim (0, 1.19)
 ax1.set_title('PSMA')
 ax2.set_title('Non-PSMA')
 
-
-plt.savefig('../outputs/figures/fig5.pdf', format='pdf')
-
 plt.tight_layout()
 plt.show()
 
@@ -116,9 +116,10 @@ plt.show()
 
 # ## Port visits by flag, domestic flag vs foreign flag 2016/2021
 
+# REPLACE IT WITH THE PARQUET FILE UNDER THE SAME NAME IN THE DATA FOLDER
 q = """
 SELECT DISTINCT port_flag_eu, diff AS difference, total, is_psma
-FROM `world-fishing-827.scratch_jaeyoon.psma_port_visits_by_reflagged_vessels_v20230715`
+FROM `world-fishing-827.scratch_jaeyoon.psma_port_visits_by_reflagged_vessels_v20230815`
 """
 df1 = pd.read_gbq(q, project_id='world-fishing-827', dialect='standard')
 
@@ -190,16 +191,13 @@ ax.text(0.57, 4.1, 'Number of\nport visits')
 ax.text(0.65, 1.8, '10,000')
 ax.text(0.65, 2.7, '1,000')
 ax.text(0.65, 3.5, '100')
-# ax.scatter(0, 0, s=)
-
-
-plt.savefig('../outputs/figures/fig7.pdf', format='pdf')
 
 plt.show()
 # -
 
 # ## Closed loop analysis
 
+# REPLACE BIGQUERY TABLES WITH THE PARQUET FILES UNDER THE SAME NAME IN THE DATA FOLDER
 q = """
 WITH
   by_port AS (
@@ -287,23 +285,17 @@ plt.xlabel("Proportion of transshipment vessel visits in a closed loop" +
            "\nto total transshipment vessel visits to a given port State", fontsize=10)
 plt.ylabel("Proportion of transshipment vessel visits in a closed loop" +
            "\nto total transshipment vessel visits by the same flag State", fontsize=10)
-# plt.title("Significance of closed loop connection with regard to total port visits and total carrier fleet size")
 
-plt.savefig('../outputs/figures/fig8.pdf', format='pdf')
-
-# Display the plot (optional)
 plt.show()
-
-# Optionally close the plot
-plt.close()
 # -
 # ## Landed fishing effort by flag
 
+# REPLACE IT WITH THE PARQUET FILE UNDER THE SAME NAME IN THE DATA FOLDER
 q = """
 SELECT *, timeline AS year, SUM (fishing_effort_landed_total) OVER (PARTITION BY flag) AS total_effort
-FROM `world-fishing-827.scratch_jaeyoon.landed_fishing_effort_yearly_byflag_v20240624`
+FROM `world-fishing-827.scratch_jaeyoon.landed_fishing_effort_yearly_byflag_v20240815`
 WHERE timeline BETWEEN 2015 AND 2021
-  AND flag NOT IN ('UNK') #, 'GEO', 'COM')
+  AND flag NOT IN ('UNK')
 ORDER BY SUM (fishing_effort_landed_total) OVER (PARTITION BY flag) DESC, year
 """
 psma_yearly_all_flag = pd.read_gbq(q, project_id='world-fishing-827', dialect='standard')
@@ -355,15 +347,13 @@ reordered_handles = [handles[2], handles[1], handles[0]]
 reordered_labels = [labels[2], labels[1], labels[0]]
 axes[0][0].legend(loc=1, handles=reordered_handles, labels=reordered_labels, bbox_to_anchor=(1, 1.4))
 
-
-plt.savefig('../outputs/figures/figS5.pdf', format='pdf')
-
 plt.tight_layout()
 plt.show()
 # -
 
 # ## Landed fishing effort by foreign vs domestic
 
+# REPLACE IT WITH THE PARQUET FILE UNDER THE SAME NAME IN THE DATA FOLDER
 q = """
 SELECT *
 FROM `scratch_jaeyoon.landed_fishing_effort_yearly_foreign_vs_domestic_v20240624`
@@ -378,10 +368,6 @@ width = 0.7
 offset = 0.22
 label_psma = ['Landed fishing effort by foreign flagged vessels',
               'Landed fishing effort by domestic flagged vessels']
-    
-# temp_0 = psma_yearly[psma_yearly.port_flag == psma_yearly.port_flag.unique()[0]]
-# prev = np.zeros(6)
-# prev_t = 0
 
 ax1.bar(foreign_domestic.timeline, 1 - foreign_domestic.frac_domestic, width=width,
        color=red, lw=2., edgecolor='none', alpha=1, label=label_psma[0])
@@ -403,40 +389,8 @@ ax1.set_ylim (0, 1.12)
 plt.grid(axis='y', linewidth=0.7, linestyle=':')
 
 plt.tight_layout()
-
-plt.savefig('../outputs/figures/figS4.pdf', format='pdf')
-
-# Display the plot (optional)
 plt.show()
-
-# Optionally close the plot
-plt.close()
-
 # -
 
-# ## Upload PSMA ratification dates
-
-
-df_dates = pd.read_csv('../data/psma_ratifiers.csv')
-print(len(df_dates))
-df_dates.head(1)
-
-df_dates['date'] = pd.to_datetime(df_dates.Entry_into_force_date)
-
-# +
-from google.cloud import bigquery
-
-table_id = "world-fishing-827.scratch_jaeyoon.psma_ratifiers_v20240318"
-config = bigquery.LoadJobConfig(
-    # Will overwrite any existing table.
-    # Use "WRITE_APPEND" to add data to an existing table
-    write_disposition="WRITE_TRUNCATE",
-)
-
-client = bigquery.Client()
-client.load_table_from_dataframe(
-    df_dates, table_id, job_config=config
-)
-# -
 
 

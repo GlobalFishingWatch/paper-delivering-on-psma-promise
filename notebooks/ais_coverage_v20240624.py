@@ -22,6 +22,7 @@ red = "#d73b68"
 
 # ## AIS coverage, PSMA vs. non-PSMA with China separated
 
+# REPLACE IT WITH THE PARQUET FILE UNDER THE SAME NAME IN THE DATA FOLDER
 q = """
 SELECT *
 FROM `scratch_jaeyoon.psma_ais_messages_total_hours_2012_2021_by_psma_china_separated_v20240624`

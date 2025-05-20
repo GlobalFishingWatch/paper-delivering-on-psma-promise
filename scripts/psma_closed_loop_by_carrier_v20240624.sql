@@ -1,6 +1,6 @@
-------------------------------
--- PSMA closed loop by carrier
-------------------------------
+######################################
+# PSMA closed loop analysis by carrier
+######################################
 CREATE TEMPORARY FUNCTION start_date() AS (TIMESTAMP "2015-01-01");
 CREATE TEMPORARY FUNCTION end_date() AS (TIMESTAMP "2022-01-01");
 CREATE TEMPORARY FUNCTION psma_flag(flag STRING) AS ((
@@ -180,10 +180,3 @@ FROM (
 WHERE closed_loop_cnt / total_cnt >= 0.0 AND total_cnt > 100
 ORDER BY psma, carrier_flag_eu, total_cnt
 
-#
-# Russian port visits by year
---SELECT year, COUNTIF (udfs.mmsi_to_iso3 (ssvid) = port_flag) / COUNT (*) AS ratio
---FROM port_visits
---WHERE udfs.mmsi_to_iso3 (ssvid) = 'RUS'
---GROUP BY 1
---ORDER BY 1
